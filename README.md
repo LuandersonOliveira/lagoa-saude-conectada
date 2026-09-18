@@ -1,86 +1,109 @@
-# Lagoa Saúde Conectada
+# Saúde+ — Lagoa Conectada
 
-Crie a plataforma web "Saúde+ — Lagoa Conectada", um sistema de gestão e cuidado integrado para a rede pública de saúde de Lagoa de Itaenga - PE.
+Plataforma de cuidado integrado para a rede hospitalar de Lagoa de Itaenga:
+agendamento de consultas, exames e alertas de
+doenças por região. HTML5/CSS3/JS no front, Node/Express + MySQL na API.
 
-### 1. Visão Geral & Papéis de Usuário
+> Todo o setup abaixo foi testado de ponta a ponta (banco, API, cadastro,
+> login, isolamento de dados por usuário e bloqueio de rotas de admin) antes
+> de chegar até você.
 
-O aplicativo atende três perfis distintos de acesso:
+## Estrutura
 
-- Paciente: Morador municipal que realiza agendamentos de consultas/exames, solicita transporte sanitário e acompanha alertas de doenças locais.
-
-- Atendente: Profissional de saúde que gerencia filas de atendimento, busca pacientes e realiza reagendamentos.
-
-- Administrador: Gestor público responsável por gerenciar usuários, cadastrar alertas regionais de saúde, administrar unidades de saúde e visualizar registros de auditoria.
-
-### 2. Padrão de Dados & Conformidade SUS
-
-O cadastro e as entidades de dados devem seguir o padrão da saúde pública brasileira (CADSUS/e-SUS):
-
-- Identificação do Paciente: Nome civil, Nome social, CPF (com validação de dígito verificador), CNS (Cartão Nacional de Saúde - 15 dígitos), RG, Data de nascimento, Gênero e Raça/Cor (categorias do IBGE/CADSUS).
-
-- Prioridade Legal: Classificação automática ou manual para ordens de fila (Idoso 60+, PCD, Gestante, Lactante).
-
-- Responsável: Campo condicional para nome do responsável legal caso o paciente seja menor de 18 anos.
-
-- Endereço: Validação de CEP, com diferenciação clara entre Zona Urbana e Zona Rural, além de Ponto de Referência.
-
-### 3. Módulos e Funcionalidades Principais
-
-- Autenticação e Cadastro: Wizard em 4 passos (Tipo de Conta, Dados Pessoais, Endereço, Acesso) com máscaras em tempo real para CPF, telefone e CEP.
-
-- Painel do Paciente (Dashboard):
-
-  * Agendamento de Consultas e Exames (com seletores fechados e campo condicional "Outro").
-
-  * Solicitação de Transporte Sanitário para atendimentos fora do município.
-
-  * Feed de Alertas Epidêmicos/Doenças filtrados por região/bairro.
-
-  * Painel de próximos eventos e lembretes de consultas.
-
-- Painel do Atendente:
-
-  * Busca rápida de pacientes por nome/CPF com indicação de status.
-
-  * Fila de atendimento ordenada por Prioridade Legal.
-
-  * Reagendamento com seletor de data/hora (datetime-local) dentro de modais.
-
-- Painel de Administração:
-
-  * Controle e aprovação de usuários (ativação/inativação com campo de motivo para auditoria).
-
-  * Cadastro de Alertas de Doenças com seletor de bairros/regiões padronizados.
-
-  * Histórico e registro completo de ações administrativas (audit_log).
-
-### 4. Requisitos de UI/UX e Segurança
-
-- Design System: Interface responsiva em paleta de alto contraste ("Lagoa"), focada em acessibilidade para usuários com baixa familiaridade digital.
-
-- Modais e Interações: Substituição total de alertas/confirmações nativas do navegador (alert/confirm/prompt) por Modais acessíveis do próprio design system.
-
-- Feedback Visual: Estados de carregamento (loading e botão desabilitado) em todos os formulários para impedir duplo envio.
-
-- Segurança e Isolamento: Autenticação via JWT, isolamento estrito de dados por ID de usuário (cada paciente só lê seus dados) e proteção de rotas restritas a Admin e Atendente.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/7fe84362-9411-48ae-a9ca-ed509c9ea26b).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
 ```
+saude-plus/
+├── index.html          # landing page
+├── auth.html           # login e cadastro
+├── dashboard.html       # painel do usuário comum
+├── admin.html            # painel do administrador
+├── assets/
+│   ├── styles.css       # design system
+│   └── api.js            # cliente HTTP + helpers (auth, toast, fmtDate)
+└── server/
+    ├── schema.sql         # estrutura do banco MySQL
+    ├── package.json
+    ├── .env.example
+    ├── src/
+    │   ├── app.js          # configuração do Express + rotas
+    │   ├── server.js        # ponto de entrada
+    │   ├── db.js             # pool de conexão MySQL
+    │   ├── middleware/auth.js # JWT + checagem de admin
+    │   └── routes/           # auth, appointments, exams, reminders, diseases, admin
+    └── scripts/
+        ├── seed-admin.js      # cria o usuário admin
+        └── migrate-supabase.js # migração opcional do Supabase
+```
+
+## 1) Banco de dados
+
+```bash
+mysql --default-character-set=utf8mb4 -u root -p < server/schema.sql
+```
+
+> **Importante (Windows):** o `mysql.exe` no Windows costuma usar `latin1` por
+> padrão na sessão de linha de comando. A flag `--default-character-set=utf8mb4`
+> garante que os nomes das unidades de saúde (com acentos) sejam gravados
+> corretamente. Sem ela, você verá caracteres corrompidos nos seletores de Local.
+
+Isso cria o banco `saude` com as tabelas `users`, `appointments`, `exams`,
+`reminders` e `diseases`.
+
+## 2) API
+
+```bash
+cd server
+cp .env.example .env      # no Windows (cmd): copy .env.example .env
+# edite o .env com suas credenciais de MySQL e um JWT_SECRET forte
+npm install
+npm run seed:admin        # cria o usuário admin definido no .env
+npm start
+```
+
+A API sobe em `http://localhost:4000`. Se mudar a porta, defina
+`window.API_BASE` antes de carregar `assets/api.js` (no `<head>` de cada
+HTML, antes do `<script defer src="assets/api.js">`).
+
+## 3) Frontend
+
+```bash
+npx serve .
+```
+
+Acesse `http://localhost:8080` (ou a porta que o `serve` indicar).
+
+## Decisões técnicas que valem registro
+
+- **Autenticação por JWT**, guardado no `localStorage` do navegador. Simples
+  de implementar e suficiente para o escopo do projeto, mas vale lembrar:
+  isso significa que se o token vazar (XSS, por exemplo), ele é válido até
+  expirar — não há como "revogar" um token específico no servidor sem
+  adicionar uma blocklist. Para uma ONG/projeto de aprendizado é uma
+  troca razoável; para produção com dados de saúde reais, vale revisar.
+- **`bcryptjs` em vez de `bcrypt`**: o `bcrypt` original (binding nativo) só
+  instala com toolchain de compilação (Python, build tools) ou baixando
+  binário pré-compilado do GitHub — qualquer um dos dois pode falhar
+  silenciosamente em máquina Windows de aluno sem essas ferramentas, ou
+  atrás de uma rede restrita. `bcryptjs` é JS puro, mesma API, sem essa
+  fragilidade. Testei a instalação de ambos antes de decidir.
+- **Sem nenhuma API/lib externa por padrão.** O core funciona 100% offline
+  depois de instalado. Mapas, SMS/WhatsApp, etc. ficam como próximo passo
+  deliberado, não como dependência de dia 1.
+- **Dados sensíveis (LGPD):** o app guarda histórico de saúde de pessoas
+  reais. `password_hash` nunca é devolvido pela API, todo acesso a dado de
+  paciente passa por `verifyToken` (e `requireAdmin` quando for o caso), e
+  cada usuário só lê/apaga os próprios registros (`WHERE user_id = ?` em
+  toda query). Antes de usar com dados reais da população, vale também:
+  HTTPS obrigatório em produção, política de retenção/expurgo de dados, e
+  checar se a Secretaria de Saúde já tem um termo de consentimento para
+  esse tipo de coleta.
+
+## Pendências conhecidas (próximos passos naturais)
+
+- Lembretes (`reminders`) hoje só são lidos — não existe ainda nada que os
+  crie automaticamente (ex.: lembrete gerado 1 dia antes de uma consulta).
+  Daria pra ser um job agendado simples no backend.
+- Sem recuperação de senha ("esqueci minha senha").
+- Sem rate limiting no login (proteção básica contra força bruta).
+
+Nenhum desses bloqueia o funcionamento do projeto — são só o que eu
+implementaria a seguir, em ordem de prioridade.
