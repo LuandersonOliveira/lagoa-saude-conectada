@@ -90,6 +90,29 @@
     return session;
   };
 
+  function redirectByRole(role) {
+    if (role === 'admin') {
+      location.replace('admin.html');
+    } else if (role === 'atendente') {
+      location.replace('atendente.html');
+    } else {
+      location.replace('dashboard.html');
+    }
+  }
+
+  window.requireRole = async function (allowedRoles) {
+    var session = await getSession();
+    if (!session) {
+      location.replace('auth.html');
+      return null;
+    }
+    if (!Array.isArray(allowedRoles) || !allowedRoles.includes(session.user.role)) {
+      redirectByRole(session.user.role);
+      return null;
+    }
+    return session;
+  };
+
   window.isAdmin = async function () {
     var session = await getSession();
     return !!(session && session.user && session.user.role === 'admin');

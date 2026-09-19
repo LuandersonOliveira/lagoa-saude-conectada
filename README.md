@@ -55,6 +55,7 @@ cd server
 cp .env.example .env      # no Windows (cmd): copy .env.example .env
 # edite o .env com suas credenciais de MySQL e um JWT_SECRET forte
 npm install
+npm run migrate         # atualiza bancos existentes para o schema atual
 npm run seed:admin        # cria o usuário admin definido no .env
 npm start
 ```

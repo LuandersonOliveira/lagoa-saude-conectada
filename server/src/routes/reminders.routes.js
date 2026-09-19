@@ -8,7 +8,7 @@ router.use(verifyToken);
 // GET /me/reminders — lembretes do usuário logado.
 // Nota: por enquanto os lembretes só são lidos. Criar lembretes automáticos
 // (ex: "sua consulta é amanhã") é um próximo passo natural — daria pra rodar
-// como um job agendado no backend que olha appointments/transports futuros.
+// como um job agendado no backend que olha appointments e exams futuros.
 router.get('/', async (req, res, next) => {
   try {
     const [rows] = await pool.query(

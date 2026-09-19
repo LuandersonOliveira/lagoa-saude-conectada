@@ -25,14 +25,14 @@ async function main() {
 
   if (existing.length) {
     const passwordHash = await bcrypt.hash(password, 10);
-    await pool.query('UPDATE users SET password_hash = ?, role = ? WHERE email = ?', [passwordHash, 'admin', email]);
+    await pool.query('UPDATE users SET password_hash = ?, role = ?, admin_level = ? WHERE email = ?', [passwordHash, 'admin', 'superadmin', email]);
     console.log(`Usuário ${email} já existia — senha e papel de admin atualizados para o que está no .env.`);
   } else {
     const passwordHash = await bcrypt.hash(password, 10);
     const id = crypto.randomUUID();
     await pool.query(
-      'INSERT INTO users (id, full_name, email, password_hash, role) VALUES (?,?,?,?,?)',
-      [id, 'Administrador', email, passwordHash, 'admin']
+      'INSERT INTO users (id, full_name, email, password_hash, role, admin_level) VALUES (?,?,?,?,?,?)',
+      [id, 'Administrador', email, passwordHash, 'admin', 'superadmin']
     );
     console.log(`Admin ${email} criado com sucesso.`);
   }

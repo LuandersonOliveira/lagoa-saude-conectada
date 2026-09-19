@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:admin": "node scripts/seed-admin.js",
-    "migrate:supabase": "node scripts/migrate-supabase.js"
+    "migrate:supabase": "node scripts/migrate-supabase.js",
+    "migrate": "mysql --default-character-set=utf8mb4 -u %DB_USER% -p%DB_PASSWORD% %DB_NAME% < migration_001.sql",
+    "smoke-test": "node scripts/smoke-test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

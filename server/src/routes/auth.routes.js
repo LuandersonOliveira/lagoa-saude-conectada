@@ -96,8 +96,14 @@ router.post('/login', async (req, res, next) => {
 
     const payload = {
       id: user.id, email: user.email,
-      role: user.role, full_name: user.full_name,
+      role: user.role, admin_level: user.admin_level || null, full_name: user.full_name,
     };
+    try {
+      await pool.query('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
+    } catch (updateError) {
+      if (updateError.code !== 'ER_BAD_FIELD_ERROR') throw updateError;
+      console.warn('Coluna last_login_at ausente; execute server/migration_001.sql para habilitar o registro de acesso.');
+    }
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     });

@@ -6,7 +6,7 @@ Análise gerada em 2026-07-20. Escopo: leitura completa do backend (Node/Express
 
 - **Frontend**: HTML5/CSS3/JS puro (sem build step), 5 páginas (`index`, `auth`, `dashboard`, `admin`, `atendente`) + `assets/api.js` (cliente HTTP) + `assets/styles.css`.
 - **Backend**: Node/Express, MySQL via `mysql2/promise`, JWT em `localStorage`, `bcryptjs` para hash.
-- **Domínio**: agendamento de consultas/exames, transporte sanitário, alertas de doenças por região, para a rede de saúde de Lagoa de Itaenga.
+- **Domínio**: agendamento de consultas/exames, alertas de doenças por região, lembretes e unidades de saúde para a rede de Lagoa de Itaenga.
 - **Papéis**: `paciente`, `atendente` (precisa ativação), `admin`.
 - **Sem git repo** neste diretório (`git init` nunca rodado) — histórico de mudanças não rastreado.
 
@@ -34,7 +34,7 @@ Pontos fortes já presentes no código (vale reconhecer, não é tudo dívida t�
 
 8. **Sem testes automatizados** (nenhum `jest`/`vitest`/`mocha` no `package.json`, nenhuma pasta `test/`). Qualquer regressão só é pega manualmente.
 9. **Sem `.env.example`** de fato no repo (README referencia `cp .env.example .env`, mas só existe `server/.env` real — falta o template).
-10. **Rotas de agendamento (`appointments`, `transports`, `exams`) duplicam lógica quase idêntica** entre `me/*.routes.js`, `admin.routes.js` e `staff.routes.js` (mesmo `ENTITY_MAP`, mesmo `PATCH /:kind/:id`, mesma validação de status) — 3 cópias do mesmo padrão. Candidato natural a um helper compartilhado (`makeEntityRouter` ou serviço comum), reduzindo risco de uma cópia divergir da outra em uma correção futura.
+10. **Rotas de agendamento (`appointments`, `exams`) duplicam lógica quase idêntica** entre `me/*.routes.js`, `admin.routes.js` e `staff.routes.js` (mesmo `ENTITY_MAP`, mesmo `PATCH /:kind/:id`, mesma validação de status) — 3 cópias do mesmo padrão. Candidato natural a um helper compartilhado (`makeEntityRouter` ou serviço comum), reduzindo risco de uma cópia divergir da outra em uma correção futura.
 11. **Reminders são somente leitura** — não existe geração automática (ex.: lembrete 1 dia antes de consulta). Já documentado como pendência no README.
 12. **Sem paginação real** — rotas usam só `LIMIT` fixo (max 100-200), sem `OFFSET`/cursor, então dado além do limite fica inacessível pela UI.
 13. **Sem tratamento de erro estruturado por tipo** — o `error handler` global (`app.js:40`) sempre devolve 500 genérico; erros de constraint do MySQL (ex: FK, unique) não são traduzidos em mensagens úteis pro usuário.
@@ -84,7 +84,7 @@ Análise do wizard de 4 passos (`auth.html`) cruzada com o que a rota `POST /aut
 Mesma análise campo a campo aplicada agora às 3 telas internas (`dashboard.html`, `admin.html`, `atendente.html`), cruzando o que cada formulário pede com o que a rota correspondente valida.
 
 **Tela de usuário/paciente (`dashboard.html`) — formulários de agendamento**
-36. **Campos "tipo" com opções fechadas incompletas**: `transport_type` (select fixo: Ambulância, Van/Kombi, Carro comum, Cadeirante, Outro) e `exam_type` (select fixo de 9 opções + Outro) **não têm campo livre condicional para "Outro"**, ao contrário de `specialty` que já tem esse padrão (`specialtyOutra`). Selecionar "Outro" em transporte ou exame não captura *qual* outro — o dado se perde. Ação: replicar o padrão `__outra` + input condicional já usado em Especialidade.
+36. **Campos "tipo" com opções fechadas incompletas**: `exam_type` (select fixo de 9 opções + Outro) **não tem campo livre condicional para "Outro"**, ao contrário de `specialty` que já tem esse padrão (`specialtyOutra`). Selecionar "Outro" em exame não captura *qual* outro — o dado se perde. Ação: replicar o padrão `__outra` + input condicional já usado em Especialidade.
 37. **`location` de consulta/exame vem de um `<select>` alimentado por `GET /health-units`** — bom (evita texto livre, já é o padrão certo), mas o catálogo tem só 10 unidades cadastradas via seed SQL, sem endpoint de cadastro/manutenção pelo admin. Se uma unidade fechar ou abrir, exige `UPDATE` manual no banco — não há tela para isso em `admin.html`, apesar de o admin gerenciar doenças, usuários e diseases pela UI.
 38. **Campo `notes`/`reason` (observações/motivo) sem limite de caracteres visível** — `TEXT` no banco aceita praticamente ilimitado, textarea não tem `maxlength`; não é bug, mas nenhum feedback de tamanho ao usuário que escreve muito.
 39. **Nenhum campo de agendamento pergunta se é reagendamento de algo cancelado/relacionado** — usuário que teve consulta cancelada e quer remarcar preenche um formulário do zero, sem vínculo com o registro anterior (perde rastreabilidade de "essa é a 2ª tentativa").
@@ -116,14 +116,14 @@ Mesma análise campo a campo aplicada agora às 3 telas internas (`dashboard.htm
 - [ ] Igualar obrigatoriedade de campo entre front e back no `/auth/signup` (CPF, RG, nascimento, gênero, nome da mãe, celular) — decidir a regra uma vez e validar no servidor, não só no HTML.
 - [ ] Validar dígito verificador de CPF (função pura) tanto no front (feedback imediato) quanto no back (garantia real).
 - [ ] Trocar `job_role` de texto livre para `<select>` com lista fixa de cargos + opção "Outro" condicional (mesmo padrão do campo "Especialidade" no dashboard).
-- [ ] Validar `scheduled_at` no back como não-passado em `appointments`/`transports`/`exams` (hoje só o front trava via `min`).
+- [ ] Validar `scheduled_at` no back como não-passado em `appointments`/`exams` (hoje só o front trava via `min`).
 - [ ] Reavaliar obrigatoriedade de `reference_point`/`zone` — condicionar a exigência de ponto de referência a `zone === 'rural'`.
-- [ ] Extrair lógica duplicada de `appointments`/`transports`/`exams` (admin + staff + me) num helper único parametrizado por tabela.
+- [ ] Extrair lógica duplicada de `appointments`/`exams` (admin + staff + me) num helper único parametrizado por tabela.
 - [ ] Implementar geração automática de `reminders` (job simples, ex. `node-cron`, rodando 1x/dia, criando lembrete N horas antes de `scheduled_at`).
 - [ ] Adicionar paginação real (`OFFSET`/cursor) nas listagens administrativas.
 - [ ] Substituir `prompt()` de reagendamento (admin e atendente) por modal com `<input type="datetime-local">` + validação de data futura no back.
 - [ ] Trocar `region` do formulário de doenças de texto livre para `<select>` reaproveitando os bairros já cadastrados em `health_units`.
-- [ ] Adicionar campo livre condicional ("Outro") em `transport_type` e `exam_type`, replicando o padrão já usado em `specialty`.
+- [ ] Adicionar campo livre condicional ("Outro") em `exam_type`, replicando o padrão já usado em `specialty`.
 - [ ] Diferenciar "paciente não encontrado" de "paciente encontrado mas inativo" na busca do atendente (`GET /staff/patients`), sem vazar dado sensível.
 - [ ] Adicionar campo de observação/motivo opcional ao alterar `account_status` de usuário, registrado no `audit_log`.
 
@@ -131,7 +131,7 @@ Mesma análise campo a campo aplicada agora às 3 telas internas (`dashboard.htm
 - [ ] Adicionar testes (Jest + supertest para rotas, mínimo: auth, isolamento por `user_id`, bloqueio de admin).
 - [ ] Adicionar ESLint + Prettier, script `npm run lint`.
 - [ ] Adicionar CI simples (GitHub Actions: lint + testes) assim que houver repositório remoto.
-- [ ] Avaliar migração incremental para TypeScript ou, no mínimo, JSDoc nos modelos de dados principais (`User`, `Appointment`, `Transport`, `Exam`).
+- [ ] Avaliar migração incremental para TypeScript ou, no mínimo, JSDoc nos modelos de dados principais (`User`, `Appointment`, `Exam`).
 
 ### Fase 4 — Produto / próximos passos (já sinalizados no README)
 - [ ] Recuperação de senha ("esqueci minha senha").

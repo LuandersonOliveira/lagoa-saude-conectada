@@ -17,9 +17,9 @@ Análise gerada em 2026-07-20, complementar ao [PLANO_MELHORIAS.md](PLANO_MELHOR
 ### 🔴 Alto impacto — usabilidade/acessibilidade real
 
 1. **Uso de `confirm()` nativo do navegador** para cancelar agendamento (`dashboard.html:330`) — inconsistente com o design system (não segue a paleta, não é responsivo em mobile, texto do botão não customizável, ruim para leitor de tela). Deveria ser um modal próprio com os mesmos componentes (`.card`, `.btn`) do resto do app.
-2. **`alert()`/`confirm()` como única confirmação destrutiva** — cancelar consulta/transporte/exame é ação com peso real (paciente pode perder vaga), e a única fricção é um `confirm()` de uma linha, sem explicar consequência específica (ex.: "essa vaga pode não voltar a ficar disponível").
-3. **Sem loading state nos botões de submit dos formulários de agendamento** (`addTransport`, `addAppt`, `addExam`) — só o botão de signup (`submitBtn`) desabilita e troca texto durante o request; os 3 formulários do dashboard não bloqueiam duplo clique, permitindo submissão dupla acidental (ex.: rede lenta + usuário clica de novo).
-4. **Mensagens de erro genéricas demais em alguns pontos** — `toast(err.message||'Erro','error')` em `addTransport/addAppt/addExam` não diferencia erro de rede, erro de validação do servidor, ou erro de horário no passado; usuário não entende o que corrigir.
+2. **`alert()`/`confirm()` como única confirmação destrutiva** — cancelar consulta/exame é ação com peso real (paciente pode perder vaga), e a única fricção é um `confirm()` de uma linha, sem explicar consequência específica (ex.: "essa vaga pode não voltar a ficar disponível").
+3. **Sem loading state nos botões de submit dos formulários de agendamento** (`addAppt`, `addExam`) — só o botão de signup (`submitBtn`) desabilita e troca texto durante o request; os formulários do dashboard não bloqueiam duplo clique, permitindo submissão dupla acidental (ex.: rede lenta + usuário clica de novo).
+4. **Mensagens de erro genéricas demais em alguns pontos** — `toast(err.message||'Erro','error')` em `addAppt/addExam` não diferencia erro de rede, erro de validação do servidor, ou erro de horário no passado; usuário não entende o que corrigir.
 5. **Navegação por teclado dentro das tabs não implementada** — `role="tab"` está presente mas não há handler de seta esquerda/direita entre abas (padrão ARIA para `tablist` esperado por leitores de tela avançados/usuários de teclado).
 6. **Campos obrigatórios do wizard (passo 2 e 3) não usam `aria-invalid` nem mensagem inline** — a validação (`validateStep2`, `validateStep3`) só foca o campo e dispara toast; usuário de leitor de tela não é avisado *qual* campo falhou de forma associada ao input (`aria-describedby`).
 7. **Sem indicação de força de senha** no cadastro — só valida `length >= 6` no `submitSignup`; senha fraca (`123456`) passa sem aviso, em app que guarda dado de saúde sensível.
@@ -53,7 +53,7 @@ Análise gerada em 2026-07-20, complementar ao [PLANO_MELHORIAS.md](PLANO_MELHOR
 - [ ] Adicionar `max` em todos os inputs `datetime-local` (limite razoável, ex.: +1 ano) para pegar erro de digitação de data.
 
 ### Fase 2 — Consistência de estado e feedback
-- [ ] Desabilitar + trocar texto do botão em `addTransport`/`addAppt`/`addExam` durante o request (mesmo padrão já usado em `submitSignup`), evitando duplo submit.
+- [ ] Desabilitar + trocar texto do botão em `addAppt`/`addExam` durante o request (mesmo padrão já usado em `submitSignup`), evitando duplo submit.
 - [ ] Diferenciar mensagens de erro por causa (rede vs. validação vs. servidor) nos `catch` dos formulários.
 - [ ] Adicionar indicador de força de senha no cadastro (mínimo: fraca/média/forte, sem lib externa — regex simples já resolve).
 - [ ] Adicionar botão "Cancelar" explícito (não só "Cancelar edição") nos formulários de criação, limpando o form.

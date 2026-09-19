@@ -141,8 +141,7 @@
 <p>Fizemos uma varredura completa em <strong>todas as pastas e em todos os arquivos do projeto</strong> para checar o que realmente foi implementado e o que ainda está faltando do <code>TAREFAS_SIMPLES_V2</code>. </p>
 <p>Aqui está o resumo honesto do estado atual do sistema:</p>
 <ol>
-<li><p><strong>O que foi feito e está funcionando bem:</strong></p>
-<ul>
+<li><strong>O que foi feito e está funcionando bem:</strong><ul>
 <li>A região das doenças no painel do administrador agora vem certinha dos bairros dos postos de saúde (Item 3.1).</li>
 <li>Reagendar consulta ou exame no administrador e no atendente agora abre um calendário em vez de ter que digitar a data à mão (Itens 3.2 e 4.1).</li>
 <li>O administrador agora tem uma tela única e unificada para buscar usuários e ver histórico (Item 3.4).</li>
@@ -152,26 +151,34 @@
 <li>Existem botões de &quot;Cancelar&quot; para limpar os formulários de consulta e exame (Item 2.5).</li>
 </ul>
 </li>
+</ol>
+<ul>
+<li>O painel do atendente voltou a carregar normalmente: <code>requireRole</code> foi adicionada ao <code>assets/api.js</code> e valida os papéis permitidos antes de carregar a fila (Item 3.1).</li>
+<li>A gestão administrativa de usuários passou a buscar por nome, e-mail ou telefone, filtrar por papel/status e registrar o motivo das alterações de conta na auditoria (Item 4.1).</li>
+<li>O administrador agora pode cadastrar, editar, ativar e desativar unidades de saúde; unidades inativas deixam de aparecer nos formulários de agendamento (Item 4.3).</li>
+<li>O backend agora cria lembretes automáticos na véspera de consultas e exames pendentes ou confirmados, exibidos no início do painel do paciente (Item 6.1).</li>
+<li>O administrador agora pode baixar um resumo CSV agregado, sem dados pessoais identificáveis.</li>
+<li>A exclusão de alertas agora usa modal próprio e o limite de um ano foi ativado nos campos de reagendamento administrativo.</li>
+<li>A visão geral administrativa agora mostra usuários pendentes, unidades ativas e alertas ativos; usuários exibem último acesso; auditoria aceita filtros; alertas podem ser editados, ativados e desativados.</li>
+</ul>
+<ol start="2">
 <li><p><strong>O que foi feito &quot;pela metade&quot; ou com defeitos que precisam de conserto:</strong></p>
 <ul>
 <li><strong>O cargo do atendente no cadastro (Item 1.1):</strong> foi colocado como lista, mas o código ficou com partes duplicadas e deixa avançar sem escolher o cargo.</li>
-<li><strong>O motivo ao mudar status no admin (Item 3.3):</strong> a tela mostra o campo para escrever o motivo, mas o servidor joga a informação fora e não guarda no histórico!</li>
 <li><strong>O aviso de paciente inativo no atendente (Item 4.2):</strong> a tela foi programada para mostrar o aviso, mas o servidor bloqueia os inativos antes de chegarem na tela. Então o aviso nunca aparece!</li>
-<li><strong>O limite de 1 ano no calendário (Item 5.4):</strong> o código da trava foi escrito, mas &quot;esqueceram de ligar o interruptor&quot; (a função nunca é chamada).</li>
 <li><strong>O destaque ao editar (Item 5.5):</strong> funciona para consultas, mas não para exames.</li>
-<li><strong>O painel do atendente tem um erro que pode travar a tela:</strong> faltava uma função de segurança de conexão no arquivo principal.</li>
 </ul>
 </li>
 <li><p><strong>O que NÃO foi feito e continua faltando:</strong></p>
+</li>
+</ol>
 <ul>
-<li><strong>ALERTA CRÍTICO: O módulo de Transporte sumiu da tela do paciente!</strong> O paciente não tem onde pedir transporte nem ver seus transportes.</li>
+<li>O escopo foi reduzido por decisão de produto e agora concentra-se em consultas, exames, alertas epidemiológicos, lembretes e unidades de saúde.</li>
 <li>Todos os campos oficiais de saúde (Nome Social, Cartão SUS/CNS, Prioridade legal, Responsável por menores, Cor/raça).</li>
 <li>Ponto de referência continua obrigatório para quem mora na cidade (deveria ser só para zona rural).</li>
 <li>Avisos de erro ao lado dos campos e indicador de senha fraca/forte.</li>
-<li>Lembretes automáticos (que avisem o paciente na véspera do atendimento).</li>
+<li>Telas específicas para os níveis administrativos; os níveis <code>superadmin</code>, <code>gestor</code>, <code>atendimento</code> e <code>alertas</code> já existem no banco e podem ser atribuídos pelo superadmin, mas o painel atual ainda é unificado.</li>
 </ul>
-</li>
-</ol>
 <p>Abaixo está o checklist completo e organizado por tela, atualizado para guiar os próximos passos do time.</p>
 <hr>
 <h2>Painel Rápido de Status (V2 → V3)</h2>
@@ -224,9 +231,9 @@
 <td>Nenhum texto de ajuda nos campos</td>
 </tr>
 <tr>
-<td><strong>2.1 Campo &quot;Outro&quot; no transporte</strong></td>
-<td>🔴 Não feito</td>
-<td><strong>Grave:</strong> a tela inteira de transporte sumiu do painel do paciente</td>
+<td><strong>2.1 Escopo de serviços</strong></td>
+<td>🟢 Encerrado</td>
+<td>O produto mantém consultas, exames, alertas, lembretes e unidades de saúde</td>
 </tr>
 <tr>
 <td><strong>2.2 Campo &quot;Outro&quot; no exame</strong></td>
@@ -260,8 +267,8 @@
 </tr>
 <tr>
 <td><strong>3.3 Motivo de status de conta</strong></td>
-<td>🟡 Feito pela metade</td>
-<td>Tela pede o motivo, mas servidor não salva</td>
+<td>🟢 Feito</td>
+<td>Motivo obrigatório ao mudar status e registrado na auditoria</td>
 </tr>
 <tr>
 <td><strong>3.4 Unificar telas de busca</strong></td>
@@ -383,23 +390,11 @@
 </ul>
 <hr>
 <h2>2. Tela do Paciente (<code>dashboard.html</code>)</h2>
-<h3>2.1 URGENTE: Restaurar a aba e os pedidos de &quot;Transporte Sanitário&quot;</h3>
+<h3>2.1 Escopo atual do painel do paciente</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> menu de abas e conteúdo da tela do paciente (<code>dashboard.html</code>).
-<strong>O que muda:</strong> <ol>
-<li>Recriar a aba <strong>&quot;Transporte&quot;</strong> no menu principal do paciente.</li>
-<li>Adicionar o formulário <strong>&quot;Solicitar transporte sanitário&quot;</strong> (com Tipo de transporte: Ambulância, Van, Carro, Cadeirante, Outro; Local de saída; Destino; Data/hora; e Motivo).</li>
-<li>Adicionar a listagem <strong>&quot;Meus transportes&quot;</strong>, onde o paciente vê o status do pedido (Pendente, Confirmado, Cancelado), pode editar enquanto estiver pendente e pode cancelar se desistir.</li>
-<li>Fazer os transportes agendados aparecerem nos cards de resumo do topo e na lista de &quot;Próximos eventos&quot; da tela de Início.
-<strong>Por que:</strong> esta é uma das promessas principais do Saúde+! O servidor já tem todo o código de transporte pronto, mas na interface do paciente a aba inteira foi esquecida ou removida por engano.</li>
-</ol>
-</li>
-</ul>
-<h3>2.2 Campo &quot;Outro&quot; no formulário de transporte</h3>
-<ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> formulário de solicitar transporte (ao reativar o item 2.1).
-<strong>O que muda:</strong> quando o paciente escolher a opção &quot;Outro&quot;, abre uma caixinha de texto para ele escrever que tipo de veículo precisa. Se escolher outra opção, a caixinha fica guardada.
-<strong>Por que:</strong> se o paciente precisa de um transporte especial que não está na lista, essa informação não pode se perder.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>Onde:</strong> painel do paciente (<code>dashboard.html</code>).
+<strong>O que muda:</strong> o painel permanece concentrado em consultas, exames, alertas epidemiológicos, lembretes e unidades de saúde.
+<strong>Por que:</strong> decisão de produto: manter uma superfície menor e coerente com os módulos realmente implementados no backend e no banco.</li>
 </ul>
 <h3>2.3 Exigir preenchimento ao escolher &quot;Outro&quot; no tipo de exame</h3>
 <ul>
@@ -409,19 +404,19 @@
 </ul>
 <h3>2.4 Ativar de verdade a trava de agendamento no futuro (máximo 1 ano)</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> todos os campos de escolher data e hora de consulta, exame e transporte.
+<li><input disabled="" type="checkbox"> <strong>Onde:</strong> todos os campos de escolher data e hora de consulta e exame.
 <strong>O que muda:</strong> o calendário do celular/computador não vai deixar selecionar nenhuma data com mais de 12 meses para a frente.
 <strong>Por que:</strong> evita que a pessoa digite o ano errado sem perceber (ex: agendar para o ano 2035 por engano). O código disso já existe no arquivo, mas estava desligado.</li>
 </ul>
-<h3>2.5 Destacar visualmente o formulário de Exame e Transporte ao clicar em &quot;Editar&quot;</h3>
+<h3>2.5 Destacar visualmente o formulário de Exame ao clicar em &quot;Editar&quot;</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> formulários de exames e transportes no painel do paciente.
+<li><input disabled="" type="checkbox"> <strong>Onde:</strong> formulário de exames no painel do paciente.
 <strong>O que muda:</strong> quando o paciente clica no botão &quot;Editar&quot; de um agendamento da lista, a tela sobe até o formulário e ele ganha uma borda colorida destacada avisando: <em>&quot;Você está editando este agendamento&quot;</em>, com um botão claro para salvar ou cancelar a edição.
 <strong>Por que:</strong> hoje isso só foi feito no formulário de consultas; em exames a pessoa clica em editar e não fica claro na tela que o formulário mudou para modo de edição.</li>
 </ul>
 <h3>2.6 Botão de &quot;Reagendar&quot; para itens cancelados</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> na lista de consultas, exames e transportes cancelados do paciente.
+<li><input disabled="" type="checkbox"> <strong>Onde:</strong> na lista de consultas e exames cancelados do paciente.
 <strong>O que muda:</strong> quando uma consulta ou exame constar como &quot;Cancelado&quot;, colocar um botãozinho amigável <strong>&quot;Tentar agendar novamente&quot;</strong>, que já abre o formulário pré-preenchido com a mesma especialidade e local, precisando apenas escolher uma nova data.
 <strong>Por que:</strong> se a consulta foi cancelada (por falta de médico ou pelo próprio paciente), ele não precisa preencher tudo do zero novamente.</li>
 </ul>
@@ -429,9 +424,8 @@
 <h2>3. Tela do Atendente (<code>atendente.html</code>)</h2>
 <h3>3.1 Consertar o carregamento do painel do atendente (Erro de Login)</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> no carregamento da tela do atendente (<code>atendente.html</code>).
-<strong>O que muda:</strong> corrigir uma incompatibilidade no código de segurança de acesso (<code>requireRole</code>), garantindo que o atendente logado entre no painel sem erros de tela travada ou tela em branco.
-<strong>Por que:</strong> hoje o atendente pode se deparar com um erro silencioso no navegador que o impede de usar as ferramentas do posto.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>Concluído:</strong> <code>requireRole</code> foi adicionada ao <code>assets/api.js</code>, que é o cliente carregado por <code>atendente.html</code>. A função valida os papéis permitidos e redireciona usuários para o painel correto.
+<strong>Resultado:</strong> o erro <code>ReferenceError: requireRole is not defined</code> foi eliminado e a tela deixa de ficar presa no spinner antes de carregar a fila.</li>
 </ul>
 <h3>3.2 Fazer o aviso de &quot;Paciente Inativo/Pendente&quot; funcionar de verdade</h3>
 <ul>
@@ -465,18 +459,16 @@
 </ul>
 <h3>4.2 Janela bonita ao excluir alerta de doença</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> aba &quot;Doenças&quot;, no botão &quot;Excluir&quot;.
-<strong>O que muda:</strong> hoje aparece uma janelinha cinza simples do próprio navegador perguntando <em>&quot;Excluir este alerta?&quot;</em>. Vai virar uma janela bonita do próprio sistema Saúde+, explicando: <em>&quot;Tem certeza que deseja apagar o alerta sobre esta doença? Ele deixará de aparecer para todos os moradores imediatamente.&quot;</em>
-<strong>Por que:</strong> ações de apagar dados devem seguir a mesma identidade visual e cuidado das outras janelas do aplicativo.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>Concluído:</strong> a aba &quot;Doenças&quot; usa um modal próprio para confirmar a exclusão e informar a consequência da ação.</li>
 </ul>
 <h3>4.3 Gestão de Postos e Unidades de Saúde (<code>health_units</code>)</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>Onde:</strong> criar uma nova aba ou seção dentro do painel do Administrador: <strong>&quot;Postos e Unidades&quot;</strong>.
+<li><input checked="" disabled="" type="checkbox"> <strong>Concluído:</strong> a aba <strong>&quot;Unidades de Saúde&quot;</strong> permite cadastrar, editar, ativar e desativar unidades. As ações são registradas na auditoria.
 <strong>O que muda:</strong> permitir que o administrador:<ol>
 <li>Veja a lista dos postos de saúde, UBSs e hospitais cadastrados no município.</li>
 <li>Adicione uma nova unidade se um posto novo for inaugurado em Lagoa de Itaenga.</li>
 <li>Altere o nome, bairro ou desative uma unidade que estiver em reforma.
-<strong>Por que:</strong> hoje as 10 unidades de saúde estão gravadas no banco de dados sem nenhuma tela para o administrador mexer. Se um PSF mudar de nome ou endereço, ninguém consegue alterar pelo sistema sem chamar um programador.</li>
+<strong>Resultado:</strong> unidades inativas deixam de aparecer nos formulários de agendamento, sem apagar o registro nem o histórico administrativo.</li>
 </ol>
 </li>
 </ul>
@@ -501,8 +493,8 @@
 </blockquote>
 <h3>6.1 Lembretes automáticos na véspera da consulta/exame</h3>
 <ul>
-<li><input disabled="" type="checkbox"> <strong>O que muda:</strong> o sistema passará a ter uma rotina automática diária que lê as consultas e transportes agendados para o dia seguinte e cria um aviso na aba &quot;Minha agenda&quot; e no card de lembretes do paciente (ex: <em>&quot;Lembrete: sua consulta com Clínico Geral é amanhã às 08:30 no PSF Progresso&quot;</em>).
-<strong>Por que:</strong> uma das maiores causas de filas na saúde pública é o paciente faltar à consulta porque esqueceu a data. Lembretes automáticos reduzem o índice de faltas.</li>
+<li><input checked="" disabled="" type="checkbox"> <strong>Concluído:</strong> o job <code>server/src/jobs/reminders.js</code> executa na inicialização e a cada 24 horas, localiza consultas e exames pendentes/confirmados do dia seguinte e cria lembretes únicos.
+<strong>Resultado:</strong> os lembretes aparecem no início do painel do paciente como “Novo” ou “Lido”.</li>
 </ul>
 <h3>6.2 Blindagem de segurança no cadastro e nas datas</h3>
 <ul>
@@ -522,10 +514,9 @@
 <hr>
 <h2>7. Roteiro Sugerido de Execução para o Time (Próximas Reuniões)</h2>
 <p>Para o time não se perder tentando fazer tudo de uma vez, sugerimos aprovar as tarefas nestas 3 etapas lógicas:</p>
-<h3>Etapa 1: Consertos Urgentes e o Transporte do Paciente</h3>
+<h3>Etapa 1: Consertos prioritários do produto atual</h3>
 <ol>
-<li><strong>Restaurar o módulo de Transporte Sanitário no painel do paciente</strong> (Item 2.1).</li>
-<li><strong>Consertar a inicialização do Atendente</strong> (Item 3.1) e o aviso de paciente inativo (Item 3.2).</li>
+<li><strong>Consertar a inicialização do Atendente</strong> (Item 3.1) — concluído — e corrigir o aviso de paciente inativo (Item 3.2).</li>
 <li><strong>Consertar a gravação do motivo de status de usuário no Admin</strong> (Item 4.1).</li>
 <li><strong>Ativar o limite de 1 ano no calendário de todas as telas</strong> (Itens 2.4 e 3.4).</li>
 </ol>
@@ -538,10 +529,15 @@
 </ol>
 <h3>Etapa 3: Automação, Gestão de Postos e Acabamento Visual</h3>
 <ol>
-<li><strong>Gestão de Postos e Unidades de Saúde pelo Administrador</strong> (Item 4.3).</li>
-<li><strong>Geração automática de lembretes na véspera</strong> (Item 6.1).</li>
+<li><strong>Gestão de Postos e Unidades de Saúde pelo Administrador</strong> (Item 4.3) — concluído.</li>
+<li><strong>Geração automática de lembretes na véspera</strong> (Item 6.1) — concluído.</li>
 <li><strong>Modal bonito ao excluir doenças e botões de tentar novamente</strong> (Itens 4.2 e 2.6).</li>
 <li><strong>Blindagem e proteção contra senhas repetidas</strong> (Itens 6.2 e 6.3).</li>
+</ol>
+<h3>Etapa 4: Governança administrativa</h3>
+<ol>
+<li><strong>Definir níveis e permissões de administradores</strong> antes de implementar novos papéis.</li>
+<li><strong>Ampliar relatórios somente após definir política de exportação e anonimização de dados sensíveis.</strong></li>
 </ol>
 <hr>
 <h2>8. Como usar este documento</h2>

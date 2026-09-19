@@ -28,4 +28,18 @@ function requireStaff(req, res, next) {
   next();
 }
 
-module.exports = { verifyToken, requireAdmin, requireStaff };
+function requireCapability(capability) {
+  return (req, res, next) => {
+    const level = req.user && req.user.admin_level;
+    const permissions = {
+      superadmin: ['users', 'appointments', 'diseases', 'units', 'audit', 'reports'],
+      gestor: ['users', 'appointments', 'diseases', 'units', 'audit', 'reports'],
+      atendimento: ['appointments'],
+      alertas: ['diseases'],
+    };
+    if (req.user && req.user.role === 'admin' && permissions[level || 'gestor']?.includes(capability)) return next();
+    return res.status(403).json({ error: 'Seu nível administrativo não permite esta operação.' });
+  };
+}
+
+module.exports = { verifyToken, requireAdmin, requireStaff, requireCapability };

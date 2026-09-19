@@ -10,7 +10,7 @@
 
 ### 1.1 Problema
 
-Moradores de Lagoa de Itaenga (PE) têm dificuldade para marcar consultas na rede municipal de saúde e para conseguir transporte sanitário até hospitais fora do município. O processo hoje é manual, presencial ou por telefone, sem visibilidade de horários, sem histórico centralizado, sem alerta de surtos/doenças por região.
+Moradores de Lagoa de Itaenga (PE) têm dificuldade para marcar consultas na rede municipal de saúde. O processo hoje é manual, presencial ou por telefone, sem visibilidade de horários, sem histórico centralizado, sem alerta de surtos/doenças por região.
 
 ### 1.2 Público-alvo
 
@@ -20,7 +20,7 @@ Moradores de Lagoa de Itaenga (PE) têm dificuldade para marcar consultas na red
 
 ### 1.3 Proposta de valor
 
-Um único aplicativo web onde o paciente agenda consulta, pede transporte sanitário e recebe alerta de doença por região — sem precisar ligar, ir presencialmente ou depender de papel. Para a prefeitura, uma ferramenta de gestão com histórico, auditoria e dado estruturado (em vez de planilha ou caderno).
+Um único aplicativo web onde o paciente agenda consultas e exames e recebe alertas de doença por região — sem precisar ligar, ir presencialmente ou depender de papel. Para a prefeitura, uma ferramenta de gestão com histórico, auditoria e dado estruturado (em vez de planilha ou caderno).
 
 ### 1.4 O que muda em relação à proposta original
 
@@ -37,12 +37,12 @@ O documento-fonte (PDF) previa um app móvel genérico com 5 meses de "planejame
 
 Time pequeno, todos aprendendo a programar com apoio de IA. Os papéis de Scrum são responsabilidades, não cargos separados de pessoas diferentes — em time pequeno, uma pessoa pode acumular mais de um papel, mas os chapéus continuam distintos nas cerimônias.
 
-| Papel | Responsabilidade | Observação para este time |
-|---|---|---|
-| **Product Owner (PO)** | Dono do backlog, prioriza o que entra em cada sprint, representa a voz da prefeitura/usuário final | Deve ser quem mais entende o problema de saúde local (contato mais próximo da Secretaria de Saúde ou do público-alvo) |
-| **Scrum Master (SM)** | Facilita as cerimônias (planning, daily, review, retro), remove impedimentos, protege o time de escopo excessivo | Papel crítico para time iniciante: sem SM, sprints viram "tentar fazer tudo" e nada fecha |
-| **Dev Team** | Implementa o backlog | Todos os adolescentes do time, independente de nível de experiência prévia |
-| **IA (copiloto)** | Não é um papel de Scrum formal, mas é ferramenta declarada de todo o time | Gera código, explica conceitos, revisa. **Não substitui entendimento** — Definition of Done de cada item exige que pelo menos uma pessoa do time consiga explicar o que o código faz, não só colar o que a IA gerou |
+| Papel                  | Responsabilidade                                                                                                 | Observação para este time                                                                                                                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Product Owner (PO)** | Dono do backlog, prioriza o que entra em cada sprint, representa a voz da prefeitura/usuário final               | Deve ser quem mais entende o problema de saúde local (contato mais próximo da Secretaria de Saúde ou do público-alvo)                                                                                               |
+| **Scrum Master (SM)**  | Facilita as cerimônias (planning, daily, review, retro), remove impedimentos, protege o time de escopo excessivo | Papel crítico para time iniciante: sem SM, sprints viram "tentar fazer tudo" e nada fecha                                                                                                                           |
+| **Dev Team**           | Implementa o backlog                                                                                             | Todos os adolescentes do time, independente de nível de experiência prévia                                                                                                                                          |
+| **IA (copiloto)**      | Não é um papel de Scrum formal, mas é ferramenta declarada de todo o time                                        | Gera código, explica conceitos, revisa. **Não substitui entendimento** — Definition of Done de cada item exige que pelo menos uma pessoa do time consiga explicar o que o código faz, não só colar o que a IA gerou |
 
 ### 2.1 Cerimônias (sprints de 2 semanas)
 
@@ -59,7 +59,7 @@ Time pequeno, todos aprendendo a programar com apoio de IA. Os papéis de Scrum 
 
 - **Frontend**: HTML5 + CSS3 + JavaScript puro (vanilla), sem framework, sem build step. Decisão deliberada: time iniciante aprende a base da web sem a complexidade extra de React/Vue/bundlers. Todo o HTML/CSS/JS roda direto no navegador.
 - **Backend**: Node.js + Express — **também JavaScript**, então a promessa de "uma linguagem do início ao fim" se mantém no sentido prático (mesma sintaxe, mesmo raciocínio, sem trocar de paradigma). O servidor expõe uma API REST em JSON.
-- **Banco de dados**: MySQL — dado relacional (usuários, agendamentos, transporte, doenças) com integridade referencial (chaves estrangeiras), essencial para dado de saúde onde inconsistência é inaceitável.
+- **Banco de dados**: MySQL — dado relacional (usuários, consultas, exames, alertas e lembretes) com integridade referencial (chaves estrangeiras), essencial para dado de saúde onde inconsistência é inaceitável.
 - **Autenticação**: JWT guardado no `localStorage` do navegador (ver trade-off documentado em 3.4).
 
 ### 3.2 Por que não "tudo no navegador, sem servidor"
@@ -89,7 +89,7 @@ saude-plus/
     │   ├── server.js          # entrypoint
     │   ├── db.js               # pool MySQL
     │   ├── middleware/auth.js  # JWT + checagem de papel
-    │   └── routes/             # auth, appointments, transports, exams,
+    │   └── routes/             # auth, appointments, exams,
     │                            #   reminders, diseases, units, admin, staff
     └── scripts/                # seed-admin, migração
 ```
@@ -106,7 +106,7 @@ saude-plus/
 Diferente do que o título sugere, este NÃO é um projeto vazio. Já existe uma base funcional, testada ponta a ponta:
 
 - 5 telas HTML funcionando (`index`, `auth`, `dashboard`, `admin`, `atendente`).
-- API REST com ~30 endpoints cobrindo autenticação, agendamento de consultas/exames, transporte sanitário, alertas de doença, unidades de saúde, administração de usuários e log de auditoria.
+- API REST cobrindo autenticação, agendamento de consultas/exames, alertas de doença, unidades de saúde, administração de usuários e log de auditoria.
 - Banco MySQL com 5+ tabelas relacionadas por chave estrangeira.
 - Dois diagnósticos técnicos completos já produzidos: [`PLANO_MELHORIAS.md`](../PLANO_MELHORIAS.md) (backend/segurança/dado) e [`PLANO_UIUX.md`](../PLANO_UIUX.md) (interface/acessibilidade).
 
@@ -118,34 +118,34 @@ As sprints deste plano tratam a Sprint 0 e 1 como **fundação documentada** (o 
 
 Ordenado por prioridade de negócio, não por ordem de execução (a ordem de execução está nas sprints, seção 5).
 
-| # | Épico | Fonte | Por que importa para comercialização |
-|---|---|---|---|
-| E1 | Fundação segura (segredo fora do código, rate limiting, headers HTTP) | PLANO_MELHORIAS Fase 1 | Sem isso, nenhum deploy real é responsável — dado de saúde exposto |
-| E2 | Validação de dado ponta a ponta (front + back) | PLANO_MELHORIAS Fase 2 | Prefeitura não aceita sistema que grava CPF/data inválidos |
-| E3 | Acessibilidade e substituição de `alert()`/`confirm()` nativos | PLANO_UIUX Fase 1 | Público-alvo tem baixa familiaridade digital — usabilidade é requisito, não luxo |
-| E4 | Consolidação de design system e remoção de duplicação (CSS/JS) | PLANO_MELHORIAS #18, PLANO_UIUX Fase 3 | Manutenção barata é o que permite o time pequeno sustentar o produto pós-lançamento |
-| E5 | Testes automatizados (mínimo: rotas críticas de auth e agendamento) | PLANO_MELHORIAS #8 | Sem teste, toda mudança arrisca quebrar login/agendamento sem ninguém perceber |
-| E6 | Deploy real (ambiente de produção, HTTPS, variável de ambiente segura) | README "pendências conhecidas" | Pré-requisito literal para existir como produto, não só protótipo local |
-| E7 | LGPD e consentimento explícito de dado de saúde | PLANO_MELHORIAS #91 (readme), item 35 | Requisito legal para operar com dado de saúde de pessoas reais no Brasil |
-| E8 | Lembretes automáticos (job agendado) | README pendência | Funcionalidade prometida na proposta original, ainda não implementada |
-| E9 | Multi-tenant leve (permitir outro município usar, se vendido de novo) | Decisão de comercialização (seção 6) | Habilita revenda sem reescrever o sistema por cliente |
-| E10 | Onboarding e material de apresentação para gestor público | Comercialização | Prefeitura decide comprar/adotar vendo demonstração, não código |
-| E11 | Monitoramento e log estruturado em produção | PLANO_MELHORIAS #24 | Sem isso, time não sabe que o sistema caiu até um usuário reclamar |
+| #   | Épico                                                                                    | Fonte                                                  | Por que importa para comercialização                                                                             |
+| --- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| E1  | Fundação segura (segredo fora do código, rate limiting, headers HTTP)                    | PLANO_MELHORIAS Fase 1                                 | Sem isso, nenhum deploy real é responsável — dado de saúde exposto                                               |
+| E2  | Validação de dado ponta a ponta (front + back)                                           | PLANO_MELHORIAS Fase 2                                 | Prefeitura não aceita sistema que grava CPF/data inválidos                                                       |
+| E3  | Acessibilidade e substituição de `alert()`/`confirm()` nativos                           | PLANO_UIUX Fase 1                                      | Público-alvo tem baixa familiaridade digital — usabilidade é requisito, não luxo                                 |
+| E4  | Consolidação de design system e remoção de duplicação (CSS/JS)                           | PLANO_MELHORIAS #18, PLANO_UIUX Fase 3                 | Manutenção barata é o que permite o time pequeno sustentar o produto pós-lançamento                              |
+| E5  | Testes automatizados (mínimo: rotas críticas de auth e agendamento)                      | PLANO_MELHORIAS #8                                     | Sem teste, toda mudança arrisca quebrar login/agendamento sem ninguém perceber                                   |
+| E6  | Deploy real (ambiente de produção, HTTPS, variável de ambiente segura)                   | README "pendências conhecidas"                         | Pré-requisito literal para existir como produto, não só protótipo local                                          |
+| E7  | LGPD e consentimento explícito de dado de saúde                                          | PLANO_MELHORIAS #91 (readme), item 35                  | Requisito legal para operar com dado de saúde de pessoas reais no Brasil                                         |
+| E8  | Lembretes automáticos (job agendado)                                                     | README pendência                                       | Funcionalidade prometida na proposta original, ainda não implementada                                            |
+| E9  | Multi-tenant leve (permitir outro município usar, se vendido de novo)                    | Decisão de comercialização (seção 6)                   | Habilita revenda sem reescrever o sistema por cliente                                                            |
+| E10 | Onboarding e material de apresentação para gestor público                                | Comercialização                                        | Prefeitura decide comprar/adotar vendo demonstração, não código                                                  |
+| E11 | Monitoramento e log estruturado em produção                                              | PLANO_MELHORIAS #24                                    | Sem isso, time não sabe que o sistema caiu até um usuário reclamar                                               |
 | E12 | Alinhamento com padrão de dado do SUS (CNS, prioridade legal, nome social, acompanhante) | Análise comparativa contra CADSUS/e-SUS AB (seção 4.1) | Sem CNS o sistema não interopera com nenhum sistema público de saúde real — bloqueia adoção séria por prefeitura |
 
 ### 4.1 Gap de alinhamento com o padrão de dado do SUS
 
 O cadastro atual mistura dado de identidade civil (CPF, RG, nome da mãe) com perfil pessoal (tipo sanguíneo, gênero), mas não usa o identificador que qualquer posto/hospital do SUS usa de fato para abrir atendimento: o **CNS (Cartão Nacional de Saúde)**. Comparação contra o padrão CADSUS/e-SUS AB:
 
-| Campo/conceito oficial | Uso real na rede pública | Presente hoje? |
-|---|---|---|
-| **CNS** (15 dígitos, CADSUS/CNES) | Identificador único de paciente em e-SUS AB, SISREG (marcação de consulta), TFD (equivalente ao módulo de transporte sanitário do app) | Não |
-| **Nome social** | Obrigatório desde Portaria nº 1.820/2009 | Não |
-| **CID-10 / motivo codificado** | Toda consulta/exame do SUS é vinculada a CID, não texto livre — base de vigilância epidemiológica, conecta direto com o módulo de alerta de doença por região | Não (`specialty`/`notes` são texto livre) |
-| **Prioridade legal de atendimento** (idoso 60+, gestante, PCD, lactante) | Define ordem de fila, obrigatório por lei (Lei 10.048/2000) | Não — todo `pendente` é tratado igual |
-| **Nome do responsável/acompanhante** | Rotina real de posto (menor de idade, dependente) | Não |
-| **Etnia/raça-cor** (autodeclaração) | Campo padrão CADSUS/e-SUS, indicador de equidade racial em saúde | Não |
-| **Histórico vacinal / comorbidades (CIAP2)** | Parte do prontuário básico e-SUS AB | Não |
+| Campo/conceito oficial                                                   | Uso real na rede pública                                                                                                                                      | Presente hoje?                            |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **CNS** (15 dígitos, CADSUS/CNES)                                        | Identificador único de paciente em e-SUS AB e SISREG (marcação de consulta)                                                                                   | Não                                       |
+| **Nome social**                                                          | Obrigatório desde Portaria nº 1.820/2009                                                                                                                      | Não                                       |
+| **CID-10 / motivo codificado**                                           | Toda consulta/exame do SUS é vinculada a CID, não texto livre — base de vigilância epidemiológica, conecta direto com o módulo de alerta de doença por região | Não (`specialty`/`notes` são texto livre) |
+| **Prioridade legal de atendimento** (idoso 60+, gestante, PCD, lactante) | Define ordem de fila, obrigatório por lei (Lei 10.048/2000)                                                                                                   | Não — todo `pendente` é tratado igual     |
+| **Nome do responsável/acompanhante**                                     | Rotina real de posto (menor de idade, dependente)                                                                                                             | Não                                       |
+| **Etnia/raça-cor** (autodeclaração)                                      | Campo padrão CADSUS/e-SUS, indicador de equidade racial em saúde                                                                                              | Não                                       |
+| **Histórico vacinal / comorbidades (CIAP2)**                             | Parte do prontuário básico e-SUS AB                                                                                                                           | Não                                       |
 
 CPF, RG, nome da mãe, endereço com zona urbana/rural, e `blood_type` já estão alinhados com CADSUS — não é retrabalho, é complemento. Prioridade dentro de E12 (do mais simples/alto impacto ao mais complexo):
 
@@ -191,7 +191,7 @@ Cada sprint tem: objetivo, escopo, Definition of Done (DoD). O DoD é sempre cum
 
 - Validação de payload no servidor (email, CPF com dígito verificador, telefone, datas) em todas as rotas `POST`/`PUT`/`PATCH`.
 - Igualar obrigatoriedade de campo entre front e back no cadastro (CPF, RG, nascimento, gênero, nome da mãe, celular).
-- `scheduled_at` (consulta/transporte/exame) validado como não-passado também no servidor.
+- `scheduled_at` (consulta/exame) validado como não-passado também no servidor.
 - `job_role` (cargo do atendente) e `region` (alerta de doença) viram `<select>` fechado com opção "Outro" condicional, em vez de texto livre.
 
 **DoD**: chamar a API diretamente (sem passar pela tela) não permite gravar dado inválido — testado manualmente com Postman/Insomnia pelo próprio time.
@@ -227,7 +227,7 @@ Cada sprint tem: objetivo, escopo, Definition of Done (DoD). O DoD é sempre cum
 
 - Extrair `style="..."` inline repetido para classes utilitárias em `styles.css`.
 - Extrair helpers JS duplicados (`switchTab`, `statusClass`, `stat`, `levelClass`) para `assets/ui.js` compartilhado.
-- Consolidar lógica quase idêntica de `appointments`/`transports`/`exams` no backend (`me/*`, `admin`, `staff`) em um helper comum.
+- Consolidar lógica quase idêntica de `appointments`/`exams` no backend (`me/*`, `admin`, `staff`) em um helper comum.
 - Padronizar padrão "Outro" condicional em todos os selects fechados (`exam_type`, `location`).
 
 **DoD**: qualquer correção de bug em um dos 3 papéis (paciente/admin/atendente) é feita em um lugar só, não em 3 cópias.
@@ -268,7 +268,7 @@ Cada sprint tem: objetivo, escopo, Definition of Done (DoD). O DoD é sempre cum
 
 **Objetivo**: entregar a funcionalidade prometida na proposta original, ainda pendente (E8).
 
-- Job agendado no backend que gera lembrete automático 1 dia antes de consulta/transporte/exame.
+- Job agendado no backend que gera lembrete automático 1 dia antes de consulta/exame.
 - Exibição de lembrete não lido em destaque no dashboard do paciente.
 
 **DoD**: paciente com consulta marcada para amanhã vê lembrete automático sem ação manual de ninguém.
@@ -324,13 +324,13 @@ Este documento não fecha esses pontos de negócio (preço, contrato formal, CNP
 
 ## 7. Riscos e mitigação
 
-| Risco | Impacto | Mitigação |
-|---|---|---|
-| Time iniciante pode subestimar esforço de cada item do backlog | Sprints atrasam | Scrum Master ajusta escopo a cada planning; velocity real (não a estimada) guia o sprint seguinte |
-| Dependência de IA sem entendimento pode gerar código que ninguém do time sabe explicar | Bug impossível de corrigir depois | DoD de todo item exige que ao menos 1 pessoa explique a lógica, não só "a IA gerou" |
-| Dado de saúde de pessoas reais em ambiente ainda em amadurecimento | Risco legal e de confiança pública | Sprint 8 (LGPD) não é opcional nem adiável para depois do primeiro uso com dado real |
-| Equipe extraescolar (tempo limitado, calendário escolar) | Cadência de 2 semanas pode não ser sustentável o ano todo | Revisar cadência no fim de cada bloco de 3 sprints (retrospectiva "de retrospectivas") |
-| Ambição comercial pode inflar escopo além do que o time consegue sustentar sozinho | Produto lançado sem suporte real | Sprint 11 é honesta sobre o que é MVP comercial vs. visão de longo prazo — não vender promessa que o time não consegue cumprir sozinho |
+| Risco                                                                                  | Impacto                                                   | Mitigação                                                                                                                              |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Time iniciante pode subestimar esforço de cada item do backlog                         | Sprints atrasam                                           | Scrum Master ajusta escopo a cada planning; velocity real (não a estimada) guia o sprint seguinte                                      |
+| Dependência de IA sem entendimento pode gerar código que ninguém do time sabe explicar | Bug impossível de corrigir depois                         | DoD de todo item exige que ao menos 1 pessoa explique a lógica, não só "a IA gerou"                                                    |
+| Dado de saúde de pessoas reais em ambiente ainda em amadurecimento                     | Risco legal e de confiança pública                        | Sprint 8 (LGPD) não é opcional nem adiável para depois do primeiro uso com dado real                                                   |
+| Equipe extraescolar (tempo limitado, calendário escolar)                               | Cadência de 2 semanas pode não ser sustentável o ano todo | Revisar cadência no fim de cada bloco de 3 sprints (retrospectiva "de retrospectivas")                                                 |
+| Ambição comercial pode inflar escopo além do que o time consegue sustentar sozinho     | Produto lançado sem suporte real                          | Sprint 11 é honesta sobre o que é MVP comercial vs. visão de longo prazo — não vender promessa que o time não consegue cumprir sozinho |
 
 ---
 
@@ -365,7 +365,7 @@ Este apêndice condensa os dois diagnósticos completos já produzidos sobre a b
 
 8. Sem testes automatizados — nenhuma regressão é pega automaticamente (Sprint 6).
 9. Sem `server/.env.example` real no repositório (Sprint 1).
-10. Rotas de agendamento (`appointments`, `transports`, `exams`) duplicam lógica quase idêntica entre `me/*`, `admin` e `staff` — 3 cópias do mesmo padrão (Sprint 5).
+10. Rotas de agendamento (`appointments`, `exams`) duplicam lógica quase idêntica entre `me/*`, `admin` e `staff` — 3 cópias do mesmo padrão (Sprint 5).
 11. Lembretes são somente leitura, sem geração automática (Sprint 9).
 12. Sem paginação real (`OFFSET`/cursor) além do `LIMIT` fixo — dado além do limite fica inacessível pela UI.
 13. Erro handler global sempre devolve 500 genérico; erros de constraint do MySQL não são traduzidos em mensagem útil.
@@ -398,7 +398,7 @@ O front valida mais do que o back exige — toda a integridade do cadastro hoje 
 
 ### 8.6 Recebimento de dados — telas internas (dashboard, admin, atendente)
 
-- `transport_type` e `exam_type` não têm campo livre condicional para "Outro" (ao contrário de `specialty`, que já tem esse padrão) — dado se perde quando "Outro" é selecionado (Sprint 5).
+- `exam_type` não tem campo livre condicional para "Outro" (ao contrário de `specialty`, que já tem esse padrão) — dado se perde quando "Outro" é selecionado (Sprint 5).
 - Catálogo de unidades de saúde (`health_units`) não tem tela de cadastro/manutenção pelo admin — exige `UPDATE` manual no banco.
 - Campo `notes`/`reason` sem `maxlength` visível.
 - Reagendamento usa `prompt()` nativo pedindo data digitada à mão, sem validação de formato no front nem no back — replicado em admin e atendente (Sprint 4).
@@ -411,7 +411,7 @@ O front valida mais do que o back exige — toda a integridade do cadastro hoje 
 
 1. `confirm()` nativo para cancelar agendamento — inconsistente com o design system, ruim para leitor de tela (Sprint 4).
 2. `alert()`/`confirm()` como única confirmação de ação destrutiva, sem explicar consequência específica (Sprint 4).
-3. Sem loading state nos botões de submit de `addTransport`/`addAppt`/`addExam` — permite duplo envio acidental (Sprint 4).
+3. Sem loading state nos botões de submit de `addAppt`/`addExam` — permite duplo envio acidental (Sprint 4).
 4. Mensagens de erro genéricas demais — não diferenciam erro de rede, validação ou servidor.
 5. Navegação por teclado (seta esquerda/direita) não implementada nas tabs (Sprint 4).
 6. Campos obrigatórios do wizard não usam `aria-invalid` nem mensagem inline associada (Sprint 4).

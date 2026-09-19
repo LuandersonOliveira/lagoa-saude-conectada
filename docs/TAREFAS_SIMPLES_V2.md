@@ -72,9 +72,9 @@ Nada aqui fala de código, banco de dados ou termos técnicos. Se aparecer uma p
 
 ## 2. Tela do Paciente (`dashboard.html`)
 
-### 2.1 Campo "Outro" no tipo de transporte
+### 2.1 Campo "Outro" no tipo de exame
 
-- [ ] **Onde:** formulário de pedir transporte, campo "Tipo de transporte".
+- [ ] **Onde:** formulário de agendar exame, campo "Tipo de exame".
   **O que muda:** hoje tem as opções Ambulância, Van/Kombi, Carro comum, Cadeirante e Outro — mas quando a pessoa escolhe "Outro", não aparece nenhum campo para escrever qual é. Vai passar a aparecer um campo de texto pra explicar quando escolher "Outro".
   **Por que:** hoje, se a pessoa escolhe "Outro", essa informação simplesmente se perde — ninguém sabe depois o que era.
 
@@ -86,19 +86,19 @@ Nada aqui fala de código, banco de dados ou termos técnicos. Se aparecer uma p
 
 ### 2.3 Confirmação de cancelamento mais clara
 
-- [ ] **Onde:** botão de cancelar consulta, exame ou transporte, na tela do paciente.
+- [ ] **Onde:** botão de cancelar consulta ou exame, na tela do paciente.
   **O que muda:** hoje aparece uma caixinha de confirmação simples e feia do próprio navegador ("Tem certeza?"). Vai virar uma janela bonita do próprio app, explicando a consequência (ex.: "Se você cancelar, pode não haver outra vaga disponível tão cedo").
   **Por que:** cancelar uma consulta é uma decisão importante — a pessoa merece entender a consequência antes de confirmar, não só um "sim/não" seco.
 
 ### 2.4 Botão de agendar trava enquanto envia
 
-- [ ] **Onde:** botões de "Agendar consulta", "Pedir transporte" e "Agendar exame".
+- [ ] **Onde:** botões de "Agendar consulta" e "Agendar exame".
   **O que muda:** enquanto o pedido está sendo enviado, o botão trava e mostra "Enviando..." — hoje não trava, então se a pessoa clicar duas vezes ou a internet estiver lenta, pode enviar o pedido duas vezes sem querer.
   **Por que:** evita pedido duplicado por engano, principalmente em internet mais lenta (o público do app é bastante de zona rural).
 
 ### 2.5 Botão "Cancelar" ao preencher formulário
 
-- [ ] **Onde:** formulários de agendar consulta, transporte e exame.
+- [ ] **Onde:** formulários de agendar consulta e exame.
   **O que muda:** adicionar um botão "Cancelar" que limpa o formulário, para quem começou a preencher e desistiu no meio.
   **Por que:** hoje só existe "Cancelar edição" (que só aparece quando a pessoa está editando algo já existente) — quem está criando algo novo não tem um jeito claro de desistir e limpar tudo.
 
@@ -114,7 +114,7 @@ Nada aqui fala de código, banco de dados ou termos técnicos. Se aparecer uma p
 
 ### 3.2 Reagendar sem digitar data na mão
 
-- [ ] **Onde:** botão de reagendar consulta/transporte/exame, na tela do administrador.
+- [ ] **Onde:** botão de reagendar consulta/exame, na tela do administrador.
   **O que muda:** hoje aparece uma caixinha pedindo pra digitar a nova data manualmente, num formato específico (fácil de errar). Vai virar um seletor de data e hora de verdade (calendário clicável), igual ao que já é usado nos outros formulários do app.
   **Por que:** digitar data à mão é fácil de errar (ex.: escrever no formato brasileiro em vez do formato que o sistema espera) — um calendário clicável não deixa isso acontecer.
 
@@ -158,7 +158,7 @@ Nada aqui fala de código, banco de dados ou termos técnicos. Se aparecer uma p
 
 ### 5.1 Navegar pelas abas com o teclado
 
-- [ ] **Onde:** abas internas do dashboard, admin e atendente (ex.: "Consultas", "Transporte", "Exames").
+- [ ] **Onde:** abas internas do dashboard, admin e atendente (ex.: "Consultas" e "Exames").
   **O que muda:** hoje só dá pra trocar de aba clicando com o mouse. Vai passar a dar pra trocar usando as setas do teclado (esquerda/direita) quando uma aba estiver selecionada.
   **Por que:** ajuda quem usa o computador só pelo teclado ou usa leitor de tela (acessibilidade).
 
@@ -176,13 +176,13 @@ Nada aqui fala de código, banco de dados ou termos técnicos. Se aparecer uma p
 
 ### 5.4 Limite de data no calendário
 
-- [ ] **Onde:** todos os campos de escolher data e hora (agendar consulta, exame, transporte).
+- [ ] **Onde:** todos os campos de escolher data e hora (agendar consulta e exame).
   **O que muda:** hoje só existe um limite de "não pode marcar no passado" — vai ganhar também um limite de "não pode marcar muito longe no futuro" (por exemplo, mais de 1 ano).
   **Por que:** evita erro de digitação de data (tipo digitar o ano errado sem perceber) que hoje passa sem nenhum aviso.
 
 ### 5.5 Destacar quando está editando algo
 
-- [ ] **Onde:** qualquer formulário de edição (editar consulta, transporte, exame).
+- [ ] **Onde:** qualquer formulário de edição (editar consulta ou exame).
   **O que muda:** quando a pessoa clica em "Editar" um item, o formulário já pula a tela até lá, mas hoje não fica visualmente destacado que "isso aqui é o modo de edição". Vai ganhar um destaque visual (tipo uma borda colorida) enquanto estiver editando.
   **Por que:** em telas compridas, é fácil esquecer que está editando algo específico e se perder.
 

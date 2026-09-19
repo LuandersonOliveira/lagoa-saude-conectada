@@ -20,21 +20,26 @@ Aqui está o resumo honesto do estado atual do sistema:
    - A confirmação de cancelamento no painel do paciente agora é uma janela bonita do app avisando sobre a perda da vaga (Item 2.3).
    - Os botões de agendar consulta e exame agora travam e mostram "Enviando..." (Item 2.4).
    - Existem botões de "Cancelar" para limpar os formulários de consulta e exame (Item 2.5).
+  - O painel do atendente voltou a carregar normalmente: `requireRole` foi adicionada ao `assets/api.js` e valida os papéis permitidos antes de carregar a fila (Item 3.1).
+  - A gestão administrativa de usuários passou a buscar por nome, e-mail ou telefone, filtrar por papel/status e registrar o motivo das alterações de conta na auditoria (Item 4.1).
+  - O administrador agora pode cadastrar, editar, ativar e desativar unidades de saúde; unidades inativas deixam de aparecer nos formulários de agendamento (Item 4.3).
+  - O backend agora cria lembretes automáticos na véspera de consultas e exames pendentes ou confirmados, exibidos no início do painel do paciente (Item 6.1).
+  - O administrador agora pode baixar um resumo CSV agregado, sem dados pessoais identificáveis.
+  - A exclusão de alertas agora usa modal próprio e o limite de um ano foi ativado nos campos de reagendamento administrativo.
+  - A visão geral administrativa agora mostra usuários pendentes, unidades ativas e alertas ativos; usuários exibem último acesso; auditoria aceita filtros; alertas podem ser editados, ativados e desativados.
 
 2. **O que foi feito "pela metade" ou com defeitos que precisam de conserto:**
    - **O cargo do atendente no cadastro (Item 1.1):** foi colocado como lista, mas o código ficou com partes duplicadas e deixa avançar sem escolher o cargo.
-   - **O motivo ao mudar status no admin (Item 3.3):** a tela mostra o campo para escrever o motivo, mas o servidor joga a informação fora e não guarda no histórico!
    - **O aviso de paciente inativo no atendente (Item 4.2):** a tela foi programada para mostrar o aviso, mas o servidor bloqueia os inativos antes de chegarem na tela. Então o aviso nunca aparece!
-   - **O limite de 1 ano no calendário (Item 5.4):** o código da trava foi escrito, mas "esqueceram de ligar o interruptor" (a função nunca é chamada).
    - **O destaque ao editar (Item 5.5):** funciona para consultas, mas não para exames.
-   - **O painel do atendente tem um erro que pode travar a tela:** faltava uma função de segurança de conexão no arquivo principal.
 
 3. **O que NÃO foi feito e continua faltando:**
-   - **ALERTA CRÍTICO: O módulo de Transporte sumiu da tela do paciente!** O paciente não tem onde pedir transporte nem ver seus transportes.
+  - O escopo foi reduzido por decisão de produto e agora concentra-se em consultas, exames, alertas epidemiológicos, lembretes e unidades de saúde.
    - Todos os campos oficiais de saúde (Nome Social, Cartão SUS/CNS, Prioridade legal, Responsável por menores, Cor/raça).
    - Ponto de referência continua obrigatório para quem mora na cidade (deveria ser só para zona rural).
    - Avisos de erro ao lado dos campos e indicador de senha fraca/forte.
-   - Lembretes automáticos (que avisem o paciente na véspera do atendimento).
+  - Telas específicas para os níveis administrativos; os níveis `superadmin`, `gestor`, `atendimento` e `alertas` já existem no banco e podem ser atribuídos pelo superadmin, mas o painel atual ainda é unificado.
+  - Planejamento da agenda inteligente por unidade, especialidade, profissional e horários de atendimento.
 
 Abaixo está o checklist completo e organizado por tela, atualizado para guiar os próximos passos do time.
 
@@ -42,33 +47,33 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
 
 ## Painel Rápido de Status (V2 → V3)
 
-| Tarefa original (V2) | Status no Código Real | Situação atual na V3 |
-|---|---|---|
-| **1.1 Cargo do atendente** | 🟡 Feito pela metade | Tem código duplicado e não valida se escolheu |
-| **1.2 Nome social** | 🔴 Não feito | Faltando no formulário e no banco |
-| **1.3 Cartão SUS (CNS)** | 🔴 Não feito | Faltando no formulário e no banco |
-| **1.4 Prioridade de atendimento** | 🔴 Não feito | Faltando no formulário e no banco |
-| **1.5 Responsável p/ menor** | 🔴 Não feito | Faltando no formulário e no banco |
-| **1.6 Cor/raça** | 🔴 Não feito | Faltando no formulário e no banco |
-| **1.7 Ref. só para rural** | 🔴 Não feito | Continua obrigatório para todo mundo |
-| **1.8 Explicar por que pede dado** | 🔴 Não feito | Nenhum texto de ajuda nos campos |
-| **2.1 Campo "Outro" no transporte** | 🔴 Não feito | **Grave:** a tela inteira de transporte sumiu do painel do paciente |
-| **2.2 Campo "Outro" no exame** | 🟢 Feito | Funcionando (só falta validar preenchimento) |
-| **2.3 Confirmação de cancelamento** | 🟢 Feito | Modal bonito funcionando no paciente |
-| **2.4 Botão trava ao enviar** | 🟢 Feito | Funcionando em consultas e exames |
-| **2.5 Botão cancelar formulário** | 🟢 Feito | Funcionando em consultas e exames |
-| **3.1 Região do alerta de doença** | 🟢 Feito | Puxa a lista de bairros dos postos |
-| **3.2 Reagendar com calendário (admin)** | 🟢 Feito | Calendário clicável funcionando |
-| **3.3 Motivo de status de conta** | 🟡 Feito pela metade | Tela pede o motivo, mas servidor não salva |
-| **3.4 Unificar telas de busca** | 🟢 Feito | Busca unificada funcionando no admin |
-| **4.1 Reagendar com calendário (atendente)** | 🟢 Feito | Calendário clicável funcionando |
-| **4.2 Avisar paciente inativo** | 🟡 Com defeito | Tela pronta, mas servidor não envia os dados |
-| **4.3 Cargo certo no cabeçalho** | 🟡 Incompleto | Faltam cargos como Motorista e Auxiliar |
-| **5.1 Navegar abas com teclado** | 🟢 Feito | Setas do teclado funcionam nos painéis |
-| **5.2 Erro claro nos campos** | 🔴 Não feito | Continua só com mensagem genérica no topo |
-| **5.3 Indicador de senha fraca/forte**| 🔴 Não feito | Qualquer senha de 6 letras passa |
-| **5.4 Limite de 1 ano no calendário** | 🟡 Não ativado | Código escrito, mas nunca é chamado |
-| **5.5 Destacar formulário em edição** | 🟡 Parcial | Funciona em consulta, esquecido em exame |
+| Tarefa original (V2)                         | Status no Código Real | Situação atual na V3                                                       |
+| -------------------------------------------- | --------------------- | -------------------------------------------------------------------------- |
+| **1.1 Cargo do atendente**                   | 🟡 Feito pela metade   | Tem código duplicado e não valida se escolheu                              |
+| **1.2 Nome social**                          | 🔴 Não feito           | Faltando no formulário e no banco                                          |
+| **1.3 Cartão SUS (CNS)**                     | 🔴 Não feito           | Faltando no formulário e no banco                                          |
+| **1.4 Prioridade de atendimento**            | 🔴 Não feito           | Faltando no formulário e no banco                                          |
+| **1.5 Responsável p/ menor**                 | 🔴 Não feito           | Faltando no formulário e no banco                                          |
+| **1.6 Cor/raça**                             | 🔴 Não feito           | Faltando no formulário e no banco                                          |
+| **1.7 Ref. só para rural**                   | 🔴 Não feito           | Continua obrigatório para todo mundo                                       |
+| **1.8 Explicar por que pede dado**           | 🔴 Não feito           | Nenhum texto de ajuda nos campos                                           |
+| **2.1 Escopo de serviços**                   | 🟢 Encerrado           | O produto mantém consultas, exames, alertas, lembretes e unidades de saúde |
+| **2.2 Campo "Outro" no exame**               | 🟢 Feito               | Funcionando (só falta validar preenchimento)                               |
+| **2.3 Confirmação de cancelamento**          | 🟢 Feito               | Modal bonito funcionando no paciente                                       |
+| **2.4 Botão trava ao enviar**                | 🟢 Feito               | Funcionando em consultas e exames                                          |
+| **2.5 Botão cancelar formulário**            | 🟢 Feito               | Funcionando em consultas e exames                                          |
+| **3.1 Região do alerta de doença**           | 🟢 Feito               | Puxa a lista de bairros dos postos                                         |
+| **3.2 Reagendar com calendário (admin)**     | 🟢 Feito               | Calendário clicável funcionando                                            |
+| **3.3 Motivo de status de conta**            | 🟢 Feito               | Motivo obrigatório ao mudar status e registrado na auditoria               |
+| **3.4 Unificar telas de busca**              | 🟢 Feito               | Busca unificada funcionando no admin                                       |
+| **4.1 Reagendar com calendário (atendente)** | 🟢 Feito               | Calendário clicável funcionando                                            |
+| **4.2 Avisar paciente inativo**              | 🟡 Com defeito         | Tela pronta, mas servidor não envia os dados                               |
+| **4.3 Cargo certo no cabeçalho**             | 🟡 Incompleto          | Faltam cargos como Motorista e Auxiliar                                    |
+| **5.1 Navegar abas com teclado**             | 🟢 Feito               | Setas do teclado funcionam nos painéis                                     |
+| **5.2 Erro claro nos campos**                | 🔴 Não feito           | Continua só com mensagem genérica no topo                                  |
+| **5.3 Indicador de senha fraca/forte**       | 🔴 Não feito           | Qualquer senha de 6 letras passa                                           |
+| **5.4 Limite de 1 ano no calendário**        | 🟡 Não ativado         | Código escrito, mas nunca é chamado                                        |
+| **5.5 Destacar formulário em edição**        | 🟡 Parcial             | Funciona em consulta, esquecido em exame                                   |
 
 ---
 
@@ -134,19 +139,10 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
 
 ## 2. Tela do Paciente (`dashboard.html`)
 
-### 2.1 URGENTE: Restaurar a aba e os pedidos de "Transporte Sanitário"
-- [ ] **Onde:** menu de abas e conteúdo da tela do paciente (`dashboard.html`).
-  **O que muda:** 
-  1. Recriar a aba **"Transporte"** no menu principal do paciente.
-  2. Adicionar o formulário **"Solicitar transporte sanitário"** (com Tipo de transporte: Ambulância, Van, Carro, Cadeirante, Outro; Local de saída; Destino; Data/hora; e Motivo).
-  3. Adicionar a listagem **"Meus transportes"**, onde o paciente vê o status do pedido (Pendente, Confirmado, Cancelado), pode editar enquanto estiver pendente e pode cancelar se desistir.
-  4. Fazer os transportes agendados aparecerem nos cards de resumo do topo e na lista de "Próximos eventos" da tela de Início.
-  **Por que:** esta é uma das promessas principais do Saúde+! O servidor já tem todo o código de transporte pronto, mas na interface do paciente a aba inteira foi esquecida ou removida por engano.
-
-### 2.2 Campo "Outro" no formulário de transporte
-- [ ] **Onde:** formulário de solicitar transporte (ao reativar o item 2.1).
-  **O que muda:** quando o paciente escolher a opção "Outro", abre uma caixinha de texto para ele escrever que tipo de veículo precisa. Se escolher outra opção, a caixinha fica guardada.
-  **Por que:** se o paciente precisa de um transporte especial que não está na lista, essa informação não pode se perder.
+### 2.1 Escopo atual do painel do paciente
+- [x] **Onde:** painel do paciente (`dashboard.html`).
+  **O que muda:** o painel permanece concentrado em consultas, exames, alertas epidemiológicos, lembretes e unidades de saúde.
+  **Por que:** decisão de produto: manter uma superfície menor e coerente com os módulos realmente implementados no backend e no banco.
 
 ### 2.3 Exigir preenchimento ao escolher "Outro" no tipo de exame
 - [ ] **Onde:** formulário de agendar exame, campo "Tipo de exame".
@@ -154,28 +150,45 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
   **Por que:** evita que o posto receba um pedido de exame sem saber do que se trata.
 
 ### 2.4 Ativar de verdade a trava de agendamento no futuro (máximo 1 ano)
-- [ ] **Onde:** todos os campos de escolher data e hora de consulta, exame e transporte.
+- [ ] **Onde:** todos os campos de escolher data e hora de consulta e exame.
   **O que muda:** o calendário do celular/computador não vai deixar selecionar nenhuma data com mais de 12 meses para a frente.
   **Por que:** evita que a pessoa digite o ano errado sem perceber (ex: agendar para o ano 2035 por engano). O código disso já existe no arquivo, mas estava desligado.
 
-### 2.5 Destacar visualmente o formulário de Exame e Transporte ao clicar em "Editar"
-- [ ] **Onde:** formulários de exames e transportes no painel do paciente.
+### 2.5 Destacar visualmente o formulário de Exame ao clicar em "Editar"
+- [ ] **Onde:** formulário de exames no painel do paciente.
   **O que muda:** quando o paciente clica no botão "Editar" de um agendamento da lista, a tela sobe até o formulário e ele ganha uma borda colorida destacada avisando: *"Você está editando este agendamento"*, com um botão claro para salvar ou cancelar a edição.
   **Por que:** hoje isso só foi feito no formulário de consultas; em exames a pessoa clica em editar e não fica claro na tela que o formulário mudou para modo de edição.
 
 ### 2.6 Botão de "Reagendar" para itens cancelados
-- [ ] **Onde:** na lista de consultas, exames e transportes cancelados do paciente.
+- [ ] **Onde:** na lista de consultas e exames cancelados do paciente.
   **O que muda:** quando uma consulta ou exame constar como "Cancelado", colocar um botãozinho amigável **"Tentar agendar novamente"**, que já abre o formulário pré-preenchido com a mesma especialidade e local, precisando apenas escolher uma nova data.
   **Por que:** se a consulta foi cancelada (por falta de médico ou pelo próprio paciente), ele não precisa preencher tudo do zero novamente.
+
+### 2.7 Agenda inteligente por unidade, especialidade e profissional
+- [ ] **Onde:** formulários de agendamento de consultas e exames no painel do paciente.
+  **O que muda:** remover o campo livre/opcional de **Profissional** do formulário de consulta. O paciente deverá seguir uma seleção guiada:
+  1. Escolher a unidade de saúde.
+  2. Visualizar somente as especialidades disponíveis naquela unidade.
+  3. Escolher a especialidade.
+  4. Visualizar somente os profissionais vinculados à unidade e à especialidade escolhidas.
+  5. Escolher um dia e horário realmente disponíveis para aquele profissional.
+
+  O mesmo fluxo deverá existir para exames: a unidade exibirá apenas os tipos de exame e profissionais habilitados para aquela unidade, respeitando os dias e horários cadastrados.
+  **Por que:** evita que o paciente selecione um profissional ou serviço que não existe na unidade escolhida e reduz pedidos impossíveis de atender.
+
+### 2.8 Comportamento dos campos dependentes
+- [ ] **Onde:** selects de unidade, especialidade, profissional, dia e horário.
+  **O que muda:** cada escolha deve atualizar o próximo campo. Enquanto os dados são carregados, o select deve mostrar “Carregando...”; quando não houver opção compatível, deve explicar o motivo e impedir o envio.
+  **Regras:** trocar a unidade limpa especialidade, profissional, data e horário; trocar a especialidade limpa profissional, data e horário; trocar o profissional recalcula os horários disponíveis.
+  **Por que:** impede combinações inválidas e deixa o fluxo compreensível para o paciente.
 
 ---
 
 ## 3. Tela do Atendente (`atendente.html`)
 
 ### 3.1 Consertar o carregamento do painel do atendente (Erro de Login)
-- [ ] **Onde:** no carregamento da tela do atendente (`atendente.html`).
-  **O que muda:** corrigir uma incompatibilidade no código de segurança de acesso (`requireRole`), garantindo que o atendente logado entre no painel sem erros de tela travada ou tela em branco.
-  **Por que:** hoje o atendente pode se deparar com um erro silencioso no navegador que o impede de usar as ferramentas do posto.
+- [x] **Concluído:** `requireRole` foi adicionada ao `assets/api.js`, que é o cliente carregado por `atendente.html`. A função valida os papéis permitidos e redireciona usuários para o painel correto.
+  **Resultado:** o erro `ReferenceError: requireRole is not defined` foi eliminado e a tela deixa de ficar presa no spinner antes de carregar a fila.
 
 ### 3.2 Fazer o aviso de "Paciente Inativo/Pendente" funcionar de verdade
 - [ ] **Onde:** aba "Buscar paciente" no painel do atendente.
@@ -204,17 +217,44 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
   **Por que:** hoje a tela do admin tem o campo para digitar o motivo, mas o servidor ignorava o texto e não gravava em lugar nenhum! Ninguém conseguia saber depois por que uma conta foi bloqueada.
 
 ### 4.2 Janela bonita ao excluir alerta de doença
-- [ ] **Onde:** aba "Doenças", no botão "Excluir".
-  **O que muda:** hoje aparece uma janelinha cinza simples do próprio navegador perguntando *"Excluir este alerta?"*. Vai virar uma janela bonita do próprio sistema Saúde+, explicando: *"Tem certeza que deseja apagar o alerta sobre esta doença? Ele deixará de aparecer para todos os moradores imediatamente."*
-  **Por que:** ações de apagar dados devem seguir a mesma identidade visual e cuidado das outras janelas do aplicativo.
+- [x] **Concluído:** a aba "Doenças" usa um modal próprio para confirmar a exclusão e informar a consequência da ação.
 
 ### 4.3 Gestão de Postos e Unidades de Saúde (`health_units`)
-- [ ] **Onde:** criar uma nova aba ou seção dentro do painel do Administrador: **"Postos e Unidades"**.
+- [x] **Concluído:** a aba **"Unidades de Saúde"** permite cadastrar, editar, ativar e desativar unidades. As ações são registradas na auditoria.
   **O que muda:** permitir que o administrador:
   1. Veja a lista dos postos de saúde, UBSs e hospitais cadastrados no município.
   2. Adicione uma nova unidade se um posto novo for inaugurado em Lagoa de Itaenga.
   3. Altere o nome, bairro ou desative uma unidade que estiver em reforma.
-  **Por que:** hoje as 10 unidades de saúde estão gravadas no banco de dados sem nenhuma tela para o administrador mexer. Se um PSF mudar de nome ou endereço, ninguém consegue alterar pelo sistema sem chamar um programador.
+  **Resultado:** unidades inativas deixam de aparecer nos formulários de agendamento, sem apagar o registro nem o histórico administrativo.
+
+### 4.4 Gestão de profissionais e especialidades por unidade
+- [ ] **Onde:** nova área administrativa ligada à aba **"Unidades de Saúde"**.
+  **O que muda:** cada unidade deverá permitir cadastrar e administrar:
+  - Profissional: nome, cargo, registro profissional quando aplicável e status ativo/inativo.
+  - Especialidades ou tipos de exame atendidos.
+  - Vínculo do profissional com uma ou mais unidades.
+  - Dias da semana e horários de atendimento na unidade.
+  - Intervalos, folgas e bloqueios de agenda.
+
+  **Exemplos:** Psicólogo(a) aparece em Psicologia; Médico(a) com Cardiologia aparece em Cardiologia; técnico ou responsável habilitado para laboratório aparece nos exames compatíveis.
+  **Por que:** a unidade é a fonte de verdade da oferta de serviços. O paciente deve escolher somente aquilo que a unidade realmente oferece.
+
+### 4.5 Regras de disponibilidade e conflito
+- [ ] **Onde:** backend, banco e painel administrativo.
+  **O que muda:** o sistema deve impedir:
+  - Agendamento fora dos dias/horários do profissional.
+  - Dois pacientes no mesmo horário do mesmo profissional.
+  - Seleção de profissional inativo.
+  - Seleção de especialidade não vinculada à unidade.
+  - Agendamento em unidade inativa.
+
+  A validação deve existir no servidor, não apenas nos selects do navegador.
+  **Por que:** o paciente não pode contornar as regras enviando uma requisição manual para a API.
+
+### 4.6 Histórico e auditoria da agenda profissional
+- [ ] **Onde:** auditoria administrativa e histórico de unidade/profissional.
+  **O que muda:** registrar criação, alteração, ativação, desativação e mudança de horários, informando administrador, data, unidade e motivo.
+  **Por que:** mudanças na oferta de atendimento podem afetar agendamentos existentes e precisam ser rastreáveis.
 
 ---
 
@@ -237,8 +277,8 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
 > *Estes itens são resolvidos diretamente na programação pela IA, mas o time de produto precisa saber que existem para poder testar e validar o funcionamento.*
 
 ### 6.1 Lembretes automáticos na véspera da consulta/exame
-- [ ] **O que muda:** o sistema passará a ter uma rotina automática diária que lê as consultas e transportes agendados para o dia seguinte e cria um aviso na aba "Minha agenda" e no card de lembretes do paciente (ex: *"Lembrete: sua consulta com Clínico Geral é amanhã às 08:30 no PSF Progresso"*).
-  **Por que:** uma das maiores causas de filas na saúde pública é o paciente faltar à consulta porque esqueceu a data. Lembretes automáticos reduzem o índice de faltas.
+- [x] **Concluído:** o job `server/src/jobs/reminders.js` executa na inicialização e a cada 24 horas, localiza consultas e exames pendentes/confirmados do dia seguinte e cria lembretes únicos.
+  **Resultado:** os lembretes aparecem no início do painel do paciente como “Novo” ou “Lido”.
 
 ### 6.2 Blindagem de segurança no cadastro e nas datas
 - [ ] **O que muda:** o servidor passará a validar com rigor os dados recebidos:
@@ -257,11 +297,10 @@ Abaixo está o checklist completo e organizado por tela, atualizado para guiar o
 
 Para o time não se perder tentando fazer tudo de uma vez, sugerimos aprovar as tarefas nestas 3 etapas lógicas:
 
-### Etapa 1: Consertos Urgentes e o Transporte do Paciente
-1. **Restaurar o módulo de Transporte Sanitário no painel do paciente** (Item 2.1).
-2. **Consertar a inicialização do Atendente** (Item 3.1) e o aviso de paciente inativo (Item 3.2).
-3. **Consertar a gravação do motivo de status de usuário no Admin** (Item 4.1).
-4. **Ativar o limite de 1 ano no calendário de todas as telas** (Itens 2.4 e 3.4).
+### Etapa 1: Consertos prioritários do produto atual
+1. **Consertar a inicialização do Atendente** (Item 3.1) — concluído — e corrigir o aviso de paciente inativo (Item 3.2).
+2. **Consertar a gravação do motivo de status de usuário no Admin** (Item 4.1).
+3. **Ativar o limite de 1 ano no calendário de todas as telas** (Itens 2.4 e 3.4).
 
 ### Etapa 2: Alinhamento Oficial com o SUS e Cadastro Completo
 1. **Ajustar o Cargo do Atendente** (Item 1.1) e adicionar **Nome Social, CNS, Prioridade e Raça/Cor** (Itens 1.2 a 1.6).
@@ -270,10 +309,22 @@ Para o time não se perder tentando fazer tudo de uma vez, sugerimos aprovar as 
 4. **Indicador de força de senha** (Item 1.9).
 
 ### Etapa 3: Automação, Gestão de Postos e Acabamento Visual
-1. **Gestão de Postos e Unidades de Saúde pelo Administrador** (Item 4.3).
-2. **Geração automática de lembretes na véspera** (Item 6.1).
+1. **Gestão de Postos e Unidades de Saúde pelo Administrador** (Item 4.3) — concluído.
+2. **Geração automática de lembretes na véspera** (Item 6.1) — concluído.
 3. **Modal bonito ao excluir doenças e botões de tentar novamente** (Itens 4.2 e 2.6).
 4. **Blindagem e proteção contra senhas repetidas** (Itens 6.2 e 6.3).
+
+### Etapa 4: Governança administrativa
+1. **Definir níveis e permissões de administradores** antes de implementar novos papéis.
+2. **Ampliar relatórios somente após definir política de exportação e anonimização de dados sensíveis.**
+
+### Etapa 5: Agenda por unidade e profissional
+1. Criar tabelas de profissionais, especialidades, vínculos e horários.
+2. Criar a gestão administrativa de profissionais e ofertas por unidade.
+3. Substituir os campos livres dos formulários de consulta e exame por selects dependentes.
+4. Criar cálculo de horários disponíveis e bloqueio de conflitos.
+5. Migrar agendamentos existentes que ainda possuem local/profissional em texto livre.
+6. Testar cenários de unidade sem oferta, profissional inativo, conflito de horário e troca de unidade durante o agendamento.
 
 ---
 
