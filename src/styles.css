@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+
+  --color-lagoon: oklch(0.44 0.08 214);
+  --color-lagoon-deep: oklch(0.32 0.07 218);
+  --color-lagoon-soft: oklch(0.93 0.03 214);
+  --color-mata: oklch(0.52 0.12 152);
+  --color-atencao: oklch(0.72 0.14 85);
+  --color-alto: oklch(0.65 0.18 45);
+  --color-critico: oklch(0.55 0.2 25);
+  --color-creme: oklch(0.98 0.01 90);
+  --color-ink: oklch(0.22 0.02 240);
+}
+
+html {
+  font-size: 17px;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-creme);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+@utility app-bg {
+  background:
+    radial-gradient(900px 500px at 8% -8%, oklch(0.9 0.05 214 / 0.55), transparent 60%),
+    radial-gradient(800px 480px at 98% 4%, oklch(0.92 0.05 152 / 0.45), transparent 62%),
+    var(--color-creme);
+  min-height: 100dvh;
+}
+
+@utility glass {
+  background: color-mix(in oklab, white 78%, transparent);
+  backdrop-filter: blur(14px);
+  border: 1px solid oklch(0.44 0.08 214 / 0.16);
+  box-shadow: 0 12px 34px oklch(0.32 0.07 218 / 0.08);
+}
+
+@utility glass-lagoon {
+  background: linear-gradient(135deg, var(--color-lagoon), var(--color-lagoon-deep));
+  color: white;
+  box-shadow: 0 18px 44px oklch(0.32 0.07 218 / 0.28);
+}
+
+@utility focus-ring {
+  outline: none;
+  &:focus-visible {
+    box-shadow: 0 0 0 3px oklch(0.44 0.08 214 / 0.45);
+  }
+}
